@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://code.jquery.com/jquery-3.4.1.min.js"
+      integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+      crossorigin="anonymous"
+    ></script>
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+      integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+      crossorigin="anonymous"
+    ></script>
+    <link rel="stylesheet" href="CustomStyle.css" />
+    <script
+      src="https://kit.fontawesome.com/311b7dfb40.js"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+</html>
+<body>
+  <div class="container">
+    <h1>SP17-BSE-103</h1>
+    <h2>M. Talha Jawad</h2>
+  </div>
+  <div class="container">
+    <div class="btn-group-vertical" role="group" aria-label="Basic example">
+      <button type="button" id="btnGetHotel" class="btn btn-secondary">
+        Get 1 Hotel
+      </button>
+      <button type="button" id="btnAllHotels" class="btn btn-secondary">
+        Get All Hotel
+      </button>
+      <button type="button" id="btnAddPost" class="btn btn-secondary">
+        Add a Hotel
+      </button>
+    </div>
+    <div class="p-2 m-2 newForm">
+        <form action="" id="newPostForm">
+          <div class="form-group">
+            <label for="title">Title</label>
+            <input
+              type="text"
+              class="form-control"
+              name="title"
+              id="title"
+              aria-describedby="titleHelp"
+              placeholder="Add Title"
+            />
+            <small id="titleHelp" class="form-text text-muted"
+              >Title of the Post</small
+            >
+            <div class="form-group">
+              <label for="body">body</label>
+              <textarea
+                class="form-control"
+                name="body"
+                id="body"
+                rows="3"
+              ></textarea>
+            </div>
+            <button type="submit" id="btnSubmit" class="btn btn-primary">
+              Submit
+            </button>
+            <button id="btnCancel" class="btn btn-warning">Cancel</button>
+          </div>
+        </form>
+      </div>
+    <div
+      class="modal fade"
+      id="exampleModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="exampleModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Edit Post</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form action="" id="editForm">
+              <div class="form-group">
+                <label for="editTitle">Title</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  name="title"
+                  id="editTitle"
+                  aria-describedby="editTitleHelp"
+                  placeholder="Enter Title"
+                />
+                <small id="editTitleHelp" class="form-text text-muted"
+                  >Name of the Hotel</small
+                >
+              </div>
+              <div class="form-group">
+                <label for="editBody">body</label>
+                <textarea
+                  class="form-control"
+                  name="body"
+                  id="editBody"
+                  rows="3"
+                ></textarea>
+              </div>
+              <input type="hidden" name="id" id="editId" />
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Close
+            </button>
+            <button type="button" class="btn btn-primary" id="btnSaveEdit">
+              Save changes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+
+          <th>Detail</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="Hotel"></tbody>
+    </table>
+  </div>
+
+  <script>
+    $(function () {
+      $("#btnGetHotel").on("click", getHotel);
+      $("#btnGetAllHotels").on("click", getAllHotel());
+      $("#btnAddPost").click(function () {
+        $(".newForm").fadeIn();
+      });
+      $("#btnCancel").click(function (e) {
+        e.preventDefault();
+        $("#newPostForm").trigger("reset");
+        $(".newForm").fadeOut();
+      });
+      $("#newPostForm").submit(handleNewformSubmit);
+
+      $("#Hotel").on("click", ".btnPostDelete", handleDelete);
+      $("#Hotel").on("click", ".btnPostEdit", handleEdit);
+      $("#btnSaveEdit").click(saveEditData);
+    });
+
+    function saveEditData(e) {
+      $.ajax({
+        url: "https://jsonplaceholder.typicode.com/posts/" + $("#editId").val(),
+        method: "PUT",
+        data: $("#editForm").serialize(),
+        success: function (data, status) {
+          console.log(data);
+          $("#exampleModal").modal("hide");
+        },
+      });
+    }
+    function handleEdit(e) {
+      var id = $(this).attr("data-id");
+      $.get(
+        "https://jsonplaceholder.typicode.com/posts/" + id,
+        function (data, status) {
+          console.log(data);
+          $("#exampleModal").modal("show");
+          $("#editTitle").val(data.title);
+          $("#editBody").val(data.body);
+          $("#editId").val(data.id);
+        }
+      );
+    }
+    function handleDelete() {
+      var id = $(this).attr("data-id");
+      $.ajax({
+        url: "https://jsonplaceholder.typicode.com/posts/" + id,
+        method: "DELETE",
+        success: function () {
+          console.log("deleted");
+        },
+      });
+    }
+    function handleNewformSubmit(e) {
+      e.preventDefault();
+      console.log($(this).serialize());
+      $.post("https://jsonplaceholder.typicode.com/posts", $(this).serialize()),
+        function (data, status) {
+          console.log(data);
+        };
+    }
+    
+    function getAllHotel() {
+      
+      $.get(
+        "https://jsonplaceholder.typicode.com/posts",
+        function (data, status) {
+          $("#Hotel").html("");
+          for (var i = 0; i < data.length; i++) {
+            $("#Hotel").append(`<tr>
+      <td>${data[i].id}</td>
+      <td>${data[i].title}</td>
+      <td>${data[i].body}</td>
+      <td width="20%">
+        <div class="btn-group-vertical" role="group" aria-label="Basic example">
+        <button data-id="${data[i].id}" class="btn btn-secondary btnPostEdit" type="button"        
+        >Edit</button>
+        <button data-id="${data[i].id}" class="btn btn-secondary btnPostDelete">Delete</button>
+        <div>
+      </td>
+    </tr>`);
+          }
+        }
+      );
+    }
+    function getHotel() {
+      $.get(
+        "https://jsonplaceholder.typicode.com/posts/1",
+        function (data, status) {
+          console.log(data);
+          $("#Hotel").html("");
+          console.log(data);
+          $("#Hotel").append(`<tr>
+        <td>${data.id}</td>
+        <td>${data.title}</td>
+        <td>${data.body}</td>
+        <td width="20%">
+          <button data-id="${data.id}" class="btn btn-secondary btnPostEdit" type="button"        
+          >Edit</button>
+          <button data-id="${data.id}" class="btn btn-secondary btnPostDelete">Delete</button>
+        </td>
+      </tr>`);
+        }
+      );
+    }
+  </script>
+</body>
